@@ -38,8 +38,7 @@ async function run() {
     try {
         const userCollection = client.db('power_hack').collection('userCollection');
 
-        // POST USER
-        //post my profile
+        // REGISTER USER
         app.post('/api/registration', async (req, res) => {
             const emailExists = await userCollection.findOne({ email: req.body.email });
             if (emailExists) {
@@ -52,6 +51,20 @@ async function run() {
                 const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
                 console.log(user)
                 res.send({ result, token });
+            }
+        })
+
+        // LOGIN USER
+        app.post('/api/login', async (req, res) => {
+            const user = await userCollection.findOne({ email: req.body.email });
+            const pass = await userCollection.findOne({ password: req.body.password });
+            if (!user) {
+                return res.status(400).json({ message: "Email not found" });
+            } else if (!pass) {
+                return res.status(400).json({ message: "Incorrect Password" });
+            } else {
+                const token = jwt.sign({ email: user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+                res.send({ token });
             }
         })
 
