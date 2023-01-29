@@ -100,11 +100,19 @@ async function run() {
         });
 
         // GET BILL DATA
-        app.get('/api/billing-list', verifyJWT, async (req, res) => {
+        app.get('/api/billing-list/:page', verifyJWT, async (req, res) => {
+            const page = parseInt(req.params.page);
             const query = {};
-              const result = await billCollection.find(query).toArray();
-            res.send(result);
-        })
+            const limit = 10;
+            const billingCount = await billCollection.countDocuments(query);
+            const totalPages = Math.ceil(billingCount / limit);
+            const result = await billCollection
+                .find(query)
+                .skip((page - 1) * limit)
+                .limit(limit)
+                .toArray();
+            res.send({ result, totalPages });
+        });
 
     } finally {
 
