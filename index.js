@@ -87,16 +87,19 @@ async function run() {
         })
 
         // UPDATE BILL DATA
-        app.patch('/api/update-billing/:id', verifyJWT, async (req, res) => {
+        app.put('/api/update-billing/:id', verifyJWT, async (req, res) => {
+            console.log(req.params)
             const id = req.params.id;
-            const billData = req.body;
-            const result = await billCollection.updateOne({ _id: new mongodb.ObjectID(id) }, { $set: billData });
-            res.send({ result });
-            // await billCollection.updateOne({ _id: new mongodb.ObjectID(id) }, { $set: billData }, function (err, result) {
-            //     if (err) throw err;
-            //     console.log('Bill data updated');
-            //     res.send(result);
-            // });
+            const updatedData = req.body;
+
+            const result = await billCollection.updateOne({ _id: ObjectId(id) }, { $set: updatedData });
+
+            if (result.modifiedCount > 0) {
+                res.status(200).send({updatedData, result});
+                // res.send(result)
+            } else {
+                res.status(404).send({ message: 'Data not found' });
+            }
         });
 
         // GET BILL DATA
@@ -113,6 +116,14 @@ async function run() {
                 .toArray();
             res.send({ result, totalPages });
         });
+
+        // DELETE BILL DATA
+        app.delete('/api/delete-billing/:id',verifyJWT, async(req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await billCollection.deleteOne(query)
+            res.send(result);
+        })
 
     } finally {
 
