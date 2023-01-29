@@ -4,12 +4,12 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
-    "mongodb": "^4.13.0"
+    "mongodb": "^4.13.0",
+    "uuid": "^9.0.0"
   },
   "name": "power_hack_server",
   "version": "1.0.0",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"

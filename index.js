@@ -1,5 +1,6 @@
 const express = require('express')
 const cors = require('cors');
+const uuid = require('uuid');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const jwt = require('jsonwebtoken');
@@ -37,6 +38,7 @@ async function run() {
     await client.connect();
     try {
         const userCollection = client.db('power_hack').collection('userCollection');
+        const billCollection = client.db('power_hack').collection('billCollection');
 
         // REGISTER USER
         app.post('/api/registration', async (req, res) => {
@@ -66,6 +68,31 @@ async function run() {
                 const token = jwt.sign({ email: user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
                 res.send({ token });
             }
+        })
+
+        // POST BILL DATA
+        app.post('/api/add-billing', verifyJWT, async (req, res) => {
+            const billingID = uuid.v4();
+            const billData = new billCollection({
+                billingID: billingID,
+                fullname: req.body.fullname,
+                email: req.body.email,
+                phone: req.body.phone,
+                payable: req.body.payable,
+                phone: req.body.phone
+            });
+            try {
+                const savedBillData = await billData.save();
+                res.send(savedBillData);
+            } catch (error) {
+                res.status(400).send(error);
+            }
+        })
+
+        // GET BILL DATA
+        app.get('/api/billing-list', verifyJWT, async (req, res) => {
+            const billingData = await billCollection.find();
+            res.send(billingData);
         })
 
     } finally {
