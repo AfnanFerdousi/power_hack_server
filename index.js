@@ -73,26 +73,37 @@ async function run() {
         // POST BILL DATA
         app.post('/api/add-billing', verifyJWT, async (req, res) => {
             const billingID = uuid.v4();
-            const billData = new billCollection({
-                billingID: billingID,
-                fullname: req.body.fullname,
-                email: req.body.email,
-                phone: req.body.phone,
-                payable: req.body.payable,
-                phone: req.body.phone
-            });
-            try {
-                const savedBillData = await billData.save();
-                res.send(savedBillData);
-            } catch (error) {
-                res.status(400).send(error);
-            }
+            const data = req.body;
+            const billData = {
+                billingID,
+                email: data.email,
+                fullname: data.fullname,
+                payable: data.payable,
+                phone: data.phone,
+                date: data.date
+            }            
+            const result = await billCollection.insertOne(billData);
+            res.send({ result, billData });
         })
+
+        // UPDATE BILL DATA
+        app.patch('/api/update-billing/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const billData = req.body;
+            const result = await billCollection.updateOne({ _id: new mongodb.ObjectID(id) }, { $set: billData });
+            res.send({ result });
+            // await billCollection.updateOne({ _id: new mongodb.ObjectID(id) }, { $set: billData }, function (err, result) {
+            //     if (err) throw err;
+            //     console.log('Bill data updated');
+            //     res.send(result);
+            // });
+        });
 
         // GET BILL DATA
         app.get('/api/billing-list', verifyJWT, async (req, res) => {
-            const billingData = await billCollection.find();
-            res.send(billingData);
+            const query = {};
+              const result = await billCollection.find(query).toArray();
+            res.send(result);
         })
 
     } finally {
