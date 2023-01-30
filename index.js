@@ -91,8 +91,15 @@ async function run() {
             console.log(req.params)
             const id = req.params.id;
             const updatedData = req.body;
+            const data = {
+                fullname: updatedData.fullname,
+                email: updatedData.email,
+                date: updatedData.date,
+                payable: updatedData.payable,
+                phone: updatedData.phone,
+            }
 
-            const result = await billCollection.updateOne({ _id: ObjectId(id) }, { $set: updatedData });
+            const result = await billCollection.updateOne({ billingID: id }, { $set: data });
 
             if (result.modifiedCount > 0) {
                 res.status(200).send({updatedData, result});
@@ -101,7 +108,7 @@ async function run() {
                 res.status(404).send({ message: 'Data not found' });
             }
         });
-
+        
         // GET BILL DATA
         app.get('/api/billing-list/:page', verifyJWT, async (req, res) => {
             const page = parseInt(req.params.page);
