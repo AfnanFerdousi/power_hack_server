@@ -41,7 +41,7 @@ async function run() {
         const billCollection = client.db('power_hack').collection('billCollection');
 
         // REGISTER USER
-        app.post('api/registration', async (req, res) => {
+        app.post('/api/registration', async (req, res) => {
             const emailExists = await userCollection.findOne({ email: req.body.email });
             if (emailExists) {
                 return res.status(400).json({ message: "Email already exists" });
@@ -57,7 +57,7 @@ async function run() {
         })
 
         // LOGIN USER
-        app.post('api/login', async (req, res) => {
+        app.post('/api/login', async (req, res) => {
             const user = await userCollection.findOne({ email: req.body.email });
             const pass = await userCollection.findOne({ password: req.body.password });
             if (!user) {
@@ -71,7 +71,7 @@ async function run() {
         })
 
         // POST BILL DATA
-        app.post('api/add-billing', verifyJWT, async (req, res) => {
+        app.post('/api/add-billing', verifyJWT, async (req, res) => {
             const billingID = uuid.v4();
             const data = req.body;
             const billData = {
@@ -87,7 +87,7 @@ async function run() {
         })
 
         // UPDATE BILL DATA
-        app.put('api/update-billing/:id', verifyJWT, async (req, res) => {
+        app.put('/api/update-billing/:id', verifyJWT, async (req, res) => {
             console.log(req.params)
             const id = req.params.id;
             const updatedData = req.body;
@@ -110,7 +110,7 @@ async function run() {
         });
 
         // GET BILL DATA
-        app.get('api/billing-list/:page', verifyJWT, async (req, res) => {
+        app.get('/api/billing-list/:page', verifyJWT, async (req, res) => {
             const page = parseInt(req.params.page);
             const query = {};
             const limit = 10;
@@ -125,7 +125,7 @@ async function run() {
         });
 
         // DELETE BILL DATA
-        app.delete('api/delete-billing/:id',verifyJWT, async(req, res) => {
+        app.delete('/api/delete-billing/:id',verifyJWT, async(req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await billCollection.deleteOne(query)
